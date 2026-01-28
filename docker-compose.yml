@@ -1,0 +1,42 @@
+services:
+  livekit:
+    image: livekit/livekit-server:latest
+    command: --dev --bind 0.0.0.0
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+    networks:
+      - livekit-net
+
+  agent:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - livekit
+    environment:
+      - LIVEKIT_URL=ws://livekit:7880
+      - LIVEKIT_API_KEY=devkey
+      - LIVEKIT_API_SECRET=secret
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+
+      # THE MAGIC FLAG:
+      # Use the value from the shell, or default to 'interactive'
+      - RUN_MODE=${RUN_MODE:-interactive}
+      - BITHUMAN_API_SECRET=${BITHUMAN_API_SECRET}
+      - BITHUMAN_MODEL_PATH=${BITHUMAN_MODEL_PATH}
+      - BITHUMAN_AVATAR_ID=${BITHUMAN_AVATAR_ID}
+      - BITHUMAN_DEVICE=${BITHUMAN_DEVICE:-cpu}
+
+    volumes:
+      - ./agent:/app/agent
+      - ./assets:/app/assets
+    networks:
+      - livekit-net
+
+    # Point to the new switcher script
+    command: ["python", "agent/main.py", "dev"]
+
+networks:
+  livekit-net:
+    driver: bridge
