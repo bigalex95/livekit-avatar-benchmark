@@ -1376,6 +1376,7 @@ dependencies = [
     { name = "livekit-plugins-google" },
     { name = "livekit-plugins-noise-cancellation" },
     { name = "livekit-plugins-silero" },
+    { name = "livekit-plugins-simli" },
     { name = "livekit-plugins-tavus" },
     { name = "livekit-plugins-turn-detector" },
     { name = "loguru" },
@@ -1401,6 +1402,7 @@ requires-dist = [
     { name = "livekit-plugins-google", specifier = ">=1.3.12" },
     { name = "livekit-plugins-noise-cancellation", specifier = ">=0.2.5" },
     { name = "livekit-plugins-silero", specifier = ">=1.3.12" },
+    { name = "livekit-plugins-simli", specifier = ">=1.3.12" },
     { name = "livekit-plugins-tavus", specifier = ">=1.3.12" },
     { name = "livekit-plugins-turn-detector", specifier = ">=1.3.12" },
     { name = "loguru", specifier = ">=0.7.3" },
@@ -1501,6 +1503,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/10/bf/b32e1983e24a571f50ec8539c3e927de419c3f81425ccfafc57af7f78cc5/livekit_plugins_silero-1.3.12.tar.gz", hash = "sha256:04be84a604dff365ac16c087b51fb5bf02f700aa31b4fdbfb7e135a1c9c3736d", size = 1955599 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/6e/3c/e0570897dcccfd4af0dbdb04061d4c04d5681f918d1853fd9fb454785b81/livekit_plugins_silero-1.3.12-py3-none-any.whl", hash = "sha256:98acc0acbaa02229d79724d4b2ab6aeb67e1576666b7551c8e861ac6e89ab4ae", size = 3903694 },
+]
+
+[[package]]
+name = "livekit-plugins-simli"
+version = "1.3.12"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "livekit-agents" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/21/f4/c417af0ab4d1f8eb14fb2c12b5dfe3a02c5f780395bac03d45c5d4a1d0c7/livekit_plugins_simli-1.3.12.tar.gz", hash = "sha256:c21603f238fd177689a8f46bc429c02205388b57253216a6d68b74d62b05ebb7", size = 4807 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ea/03/f6628f539297fdf8faf1d3531004cc8f52a92dda849df09efbc929888674/livekit_plugins_simli-1.3.12-py3-none-any.whl", hash = "sha256:9e9bd4f125d13f72055d32baab7d47dd97742530006d54223cba2f555d979bc1", size = 4886 },
 ]
 
 [[package]]

@@ -39,6 +39,15 @@ if __name__ == "__main__":
             logger.error(f"Failed to import tavus agent: {e}")
             raise
 
+    elif mode == "simli":
+        try:
+            from simli_agent import server
+
+            cli.run_app(server)
+        except ImportError as e:
+            logger.error(f"Failed to import tavus agent: {e}")
+            raise
+
     else:
         # Default to interactive
         try:
