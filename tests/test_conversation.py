@@ -1,12 +1,10 @@
-import sys
 import os
-import pytest
-from unittest.mock import MagicMock
+import sys
 
 # Add the project root to the python path so imports work
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from agent.autotest_agent import AutoTestAgent, SCENARIOS
+from agent.autotest_agent import SCENARIOS, AutoTestAgent
 
 
 def test_scenarios_exist():

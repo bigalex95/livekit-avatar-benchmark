@@ -1,5 +1,5 @@
 import os
-import asyncio
+
 from dotenv import load_dotenv
 from livekit import api
 
@@ -15,9 +15,7 @@ if not API_KEY or not API_SECRET:
 
 
 def create_token(room_name="benchmark-room", participant_identity="manual_tester"):
-    print(
-        f"Generating token for Room: '{room_name}' | Identity: '{participant_identity}'"
-    )
+    print(f"Generating token for Room: '{room_name}' | Identity: '{participant_identity}'")
 
     # 2. Create Access Token
     token = (

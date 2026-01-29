@@ -1,11 +1,11 @@
-from pathlib import Path
 import os
-from dotenv import load_dotenv
+from pathlib import Path
 
-from livekit import agents, rtc
-from livekit.agents import AgentServer, AgentSession, Agent, room_io
-from livekit.plugins import noise_cancellation, google, bithuman
 from bithuman import AsyncBithuman
+from dotenv import load_dotenv
+from livekit import agents, rtc
+from livekit.agents import Agent, AgentServer, AgentSession, room_io
+from livekit.plugins import bithuman, google, noise_cancellation
 from loguru import logger
 
 load_dotenv(dotenv_path=Path(__file__).resolve().parent / ".env.local")
@@ -39,7 +39,6 @@ server = AgentServer()
 
 @server.rtc_session()
 async def my_agent(ctx: agents.JobContext):
-
     # Check for required environment variables
     bithuman_model_path = os.getenv("BITHUMAN_MODEL_PATH")
     bithuman_avatar_id = os.getenv("BITHUMAN_AVATAR_ID")
@@ -64,9 +63,7 @@ async def my_agent(ctx: agents.JobContext):
         model="expression" if bithuman_device == "gpu" else "essence",
     )
 
-    logger.info(
-        f"Starting BitHuman avatar with {bithuman_model_path=}, {bithuman_device=}"
-    )
+    logger.info(f"Starting BitHuman avatar with {bithuman_model_path=}, {bithuman_device=}")
     try:
         await bithuman_avatar.start(session, room=ctx.room)
         logger.info("BitHuman avatar started successfully")
@@ -81,17 +78,14 @@ async def my_agent(ctx: agents.JobContext):
             audio_input=room_io.AudioInputOptions(
                 noise_cancellation=lambda params: (
                     noise_cancellation.BVCTelephony()
-                    if params.participant.kind
-                    == rtc.ParticipantKind.PARTICIPANT_KIND_SIP
+                    if params.participant.kind == rtc.ParticipantKind.PARTICIPANT_KIND_SIP
                     else noise_cancellation.BVC()
                 ),
             ),
         ),
     )
 
-    await session.generate_reply(
-        instructions="Greet the user and offer your assistance."
-    )
+    await session.generate_reply(instructions="Greet the user and offer your assistance.")
 
 
 def prewarm(proc: agents.JobProcess):

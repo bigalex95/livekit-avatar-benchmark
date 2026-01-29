@@ -2,10 +2,9 @@ import os
 from pathlib import Path
 
 from dotenv import load_dotenv
-
 from livekit import agents, rtc
-from livekit.agents import AgentServer, AgentSession, Agent, room_io
-from livekit.plugins import noise_cancellation, google, tavus  # <--- 1. Import Tavus
+from livekit.agents import Agent, AgentServer, AgentSession, room_io
+from livekit.plugins import google, noise_cancellation, tavus  # <--- 1. Import Tavus
 
 load_dotenv(dotenv_path=Path(__file__).resolve().parent / ".env.local")
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
@@ -38,7 +37,6 @@ server = AgentServer()
 
 @server.rtc_session()
 async def my_agent(ctx: agents.JobContext):
-
     session = AgentSession(
         llm=google.realtime.RealtimeModel(
             voice="Puck",
@@ -52,9 +50,7 @@ async def my_agent(ctx: agents.JobContext):
     # 'replica_id' is good for quick testing with stock avatars.
     tavus_replice_id = os.getenv("TAVUS_REPLICA_ID")
     tavus_persona_id = os.getenv("TAVUS_PERSONA_ID")
-    avatar = tavus.AvatarSession(
-        persona_id=tavus_persona_id, replica_id=tavus_replice_id
-    )
+    avatar = tavus.AvatarSession(persona_id=tavus_persona_id, replica_id=tavus_replice_id)
 
     # 3. Start the Avatar FIRST
     # The avatar needs to join the room to be ready to lip-sync
@@ -68,17 +64,14 @@ async def my_agent(ctx: agents.JobContext):
             audio_input=room_io.AudioInputOptions(
                 noise_cancellation=lambda params: (
                     noise_cancellation.BVCTelephony()
-                    if params.participant.kind
-                    == rtc.ParticipantKind.PARTICIPANT_KIND_SIP
+                    if params.participant.kind == rtc.ParticipantKind.PARTICIPANT_KIND_SIP
                     else noise_cancellation.BVC()
                 ),
             ),
         ),
     )
 
-    await session.generate_reply(
-        instructions="Greet the user and offer your assistance."
-    )
+    await session.generate_reply(instructions="Greet the user and offer your assistance.")
 
 
 if __name__ == "__main__":

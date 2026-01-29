@@ -1,8 +1,9 @@
-import os
-import time
-import subprocess
 import glob
+import os
+import subprocess
+import time
 from pathlib import Path
+
 from dotenv import load_dotenv
 
 # 1. Configuration
@@ -22,7 +23,7 @@ SCENARIO_DELAY_SECONDS = 15
 def run_scenario(audio_file):
     filename = os.path.basename(audio_file)
     print(f"\n🎬 STARTING SCENARIO: {filename}")
-    print(f"   (Injecting audio via LiveKit CLI...)")
+    print("   (Injecting audio via LiveKit CLI...)")
 
     # 2. Construct the 'lk' CLI command
     # We use --publish to play the file as a microphone
@@ -46,7 +47,7 @@ def run_scenario(audio_file):
     try:
         # 3. Run the command
         # We wait for the process to complete (audio file finished uploading/playing)
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        _result = subprocess.run(cmd, check=True, capture_output=True, text=True)
 
         # Note: 'lk' usually exits after publishing if we don't use --subscribe?
         # Actually 'lk room join' stays open. We need to make sure we only publish
@@ -69,9 +70,9 @@ def run_timed_scenario(audio_file, duration=10):
     then kills it to move to next scenario.
     """
     filename = os.path.basename(audio_file)
-    print(f"\n------------------------------------------------")
+    print("\n------------------------------------------------")
     print(f"🎬 SCENARIO: {filename}")
-    print(f"------------------------------------------------")
+    print("------------------------------------------------")
 
     cmd = [
         "lk",

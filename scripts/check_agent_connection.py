@@ -1,5 +1,5 @@
 import asyncio
-import os
+
 from livekit import api, rtc
 
 # Configuration matches docker-compose.yml
@@ -48,10 +48,7 @@ async def main():
         # Check existing participants
         for identity, participant in room.remote_participants.items():
             print(f"Existing participant: {identity} ({participant.kind})")
-            if (
-                participant.kind == rtc.ParticipantKind.PARTICIPANT_KIND_AGENT
-                or identity.startswith("agent-")
-            ):
+            if participant.kind == rtc.ParticipantKind.PARTICIPANT_KIND_AGENT or identity.startswith("agent-"):
                 print("✅ Found existing Agent!")
                 agent_found_event.set()
 
@@ -59,9 +56,9 @@ async def main():
         try:
             await asyncio.wait_for(agent_found_event.wait(), timeout=10)
             print("\nSUCCESS: Agent connected to the room.")
-        except asyncio.TimeoutError:
+        except TimeoutError:
             print("\nFAILURE: Agent did not connect within 10 seconds.")
-            print("Make sure the agent is running (use ./start.sh)")
+            print("Make sure the agent is running (use scripts/start.sh)")
 
     finally:
         await room.disconnect()

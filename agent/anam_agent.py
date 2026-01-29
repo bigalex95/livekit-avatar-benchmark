@@ -1,11 +1,10 @@
-from pathlib import Path
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
-
 from livekit import agents, rtc
-from livekit.agents import AgentServer, AgentSession, Agent, room_io
-from livekit.plugins import noise_cancellation, google, anam
+from livekit.agents import Agent, AgentServer, AgentSession, room_io
+from livekit.plugins import anam, google, noise_cancellation
 
 load_dotenv(dotenv_path=Path(__file__).resolve().parent / ".env.local")
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
@@ -38,7 +37,6 @@ server = AgentServer()
 
 @server.rtc_session()
 async def my_agent(ctx: agents.JobContext):
-
     session = AgentSession(
         llm=google.realtime.RealtimeModel(
             voice="Puck",
@@ -70,17 +68,14 @@ async def my_agent(ctx: agents.JobContext):
             audio_input=room_io.AudioInputOptions(
                 noise_cancellation=lambda params: (
                     noise_cancellation.BVCTelephony()
-                    if params.participant.kind
-                    == rtc.ParticipantKind.PARTICIPANT_KIND_SIP
+                    if params.participant.kind == rtc.ParticipantKind.PARTICIPANT_KIND_SIP
                     else noise_cancellation.BVC()
                 ),
             ),
         ),
     )
 
-    await session.generate_reply(
-        instructions="Greet the user and offer your assistance."
-    )
+    await session.generate_reply(instructions="Greet the user and offer your assistance.")
 
 
 if __name__ == "__main__":

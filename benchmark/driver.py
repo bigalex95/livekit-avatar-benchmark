@@ -1,11 +1,12 @@
 import asyncio
 import os
-import wave
 import time
-import numpy as np
+import wave
 from pathlib import Path
+
+import numpy as np
 from dotenv import load_dotenv
-from livekit import rtc, api
+from livekit import api, rtc
 
 # Load env variables
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
@@ -40,9 +41,7 @@ async def play_audio_file(source: rtc.AudioSource, filepath: str):
     with wave.open(filepath, "rb") as wf:
         # Verify format (Must be 48k/1ch/16bit for this simple script)
         if wf.getframerate() != SAMPLE_RATE or wf.getnchannels() != NUM_CHANNELS:
-            print(
-                f"Warning: {filepath} is {wf.getframerate()}Hz. Resampling recommended for best results."
-            )
+            print(f"Warning: {filepath} is {wf.getframerate()}Hz. Resampling recommended for best results.")
 
         # Calculate chunk size for 10ms (standard WebRTC frame duration)
         # 48000 Hz / 100 = 480 samples per 10ms
@@ -130,9 +129,7 @@ async def run_benchmark(audio_file):
     # 3. Setup Listener
     @room.on("track_subscribed")
     def on_track_subscribed(track, publication, participant):
-        if track.kind == rtc.TrackKind.KIND_AUDIO and participant.identity.startswith(
-            "agent"
-        ):
+        if track.kind == rtc.TrackKind.KIND_AUDIO and participant.identity.startswith("agent"):
             print(" -> Agent Audio Track Detected!")
 
     # 4. Wait for agent to join
@@ -145,9 +142,9 @@ async def run_benchmark(audio_file):
     await asyncio.sleep(2)
 
     # 5. Inject Audio
-    t_start = time.time()
+    _t_start = time.time()
     await play_audio_file(source, audio_file)
-    t_audio_end = time.time()
+    _t_audio_end = time.time()
 
     print(" -> Waiting for response...")
     await asyncio.sleep(10)  # Listen for reply
@@ -161,6 +158,4 @@ if __name__ == "__main__":
     if os.path.exists(target_file):
         asyncio.run(run_benchmark(target_file))
     else:
-        print(
-            "Error: Audio file not found. Run 'python benchmark/generate_samples.py' first."
-        )
+        print("Error: Audio file not found. Run 'python benchmark/generate_samples.py' first.")

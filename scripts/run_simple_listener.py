@@ -1,7 +1,7 @@
 import asyncio
 import os
-import signal
-from livekit import rtc, api
+
+from livekit import api, rtc
 
 # Configuration
 LIVEKIT_URL = os.getenv("LIVEKIT_URL", "ws://localhost:7880")
@@ -39,9 +39,7 @@ async def main():
         print(f"received track: {track.kind} from {participant.identity}")
 
     await room.connect(LIVEKIT_URL, token)
-    print(
-        "Listener joined! Keeping connection open for 100 seconds to allow Agent to perform..."
-    )
+    print("Listener joined! Keeping connection open for 100 seconds to allow Agent to perform...")
 
     # Stay connected
     for i in range(100):

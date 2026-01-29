@@ -1,7 +1,7 @@
 import asyncio
-import logging
-from livekit import agents, rtc
-from livekit.agents import AgentServer, AgentSession, Agent, room_io
+
+from livekit import agents
+from livekit.agents import Agent, AgentServer, AgentSession
 from livekit.plugins import google
 
 # SCENARIOS: The lines you want the avatar to speak for Lip Sync testing
@@ -64,7 +64,7 @@ async def entrypoint(ctx: agents.JobContext):
 
     # 4. The Performance Loop
     for i, text in enumerate(SCENARIOS):
-        print(f"🎬 Scene {i+1}/{len(SCENARIOS)}: '{text}'")
+        print(f"🎬 Scene {i + 1}/{len(SCENARIOS)}: '{text}'")
 
         # Force the model to say specifically this text
         # We wrap it in a prompt to ensure it repeats it exactly
