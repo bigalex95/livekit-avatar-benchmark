@@ -50,33 +50,40 @@ async def entrypoint(ctx: agents.JobContext):
     )
 
     # 2. Start the Agent
+    # 3. Schedule the Performance Loop (since session.start blocks)
+    async def run_performance():
+        # Wait for a human to actually join (so you don't perform to an empty room)
+        print("🎭 Agent ready. Waiting for a spectator to join...")
+
+        # Simple check: wait until there is more than 0 remote participants
+        while len(ctx.room.remote_participants) == 0:
+            await asyncio.sleep(1)
+
+        print("👀 Spectator joined! Starting the performance in 3 seconds...")
+        
+        # Give session a moment to be fully ready if needed
+        await asyncio.sleep(3)
+
+        # 4. The Performance Loop
+        for i, text in enumerate(SCENARIOS):
+            print(f"🎬 Scene {i + 1}/{len(SCENARIOS)}: '{text}'")
+
+            # Force the model to say specifically this text
+            # We wrap it in a prompt to ensure it repeats it exactly
+            prompt = f"Please say exactly this sentence: '{text}'"
+
+            await session.generate_reply(instructions=prompt)
+
+            # 5. Wait for the avatar to finish speaking + extra pause
+            # (Adjust sleep time based on sentence length)
+            await asyncio.sleep(10)
+
+        print("✅ Performance complete.")
+    
+    asyncio.create_task(run_performance())
+
+    # 4. Start the Agent (This blocks)
     await session.start(room=ctx.room, agent=AutoTestAgent())
-
-    # 3. Wait for a human to actually join (so you don't perform to an empty room)
-    print("🎭 Agent ready. Waiting for a spectator to join...")
-
-    # Simple check: wait until there is more than 0 remote participants
-    while len(ctx.room.remote_participants) == 0:
-        await asyncio.sleep(1)
-
-    print("👀 Spectator joined! Starting the performance in 3 seconds...")
-    await asyncio.sleep(3)
-
-    # 4. The Performance Loop
-    for i, text in enumerate(SCENARIOS):
-        print(f"🎬 Scene {i + 1}/{len(SCENARIOS)}: '{text}'")
-
-        # Force the model to say specifically this text
-        # We wrap it in a prompt to ensure it repeats it exactly
-        prompt = f"Please say exactly this sentence: '{text}'"
-
-        await session.generate_reply(instructions=prompt)
-
-        # 5. Wait for the avatar to finish speaking + extra pause
-        # (Adjust sleep time based on sentence length)
-        await asyncio.sleep(10)
-
-    print("✅ Performance complete.")
 
 
 if __name__ == "__main__":
