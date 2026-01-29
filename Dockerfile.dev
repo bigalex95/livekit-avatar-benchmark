@@ -21,17 +21,13 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 # 3. Copy dependency definitions
 COPY pyproject.toml uv.lock ./
 
-# 4. Install dependencies into the SYSTEM python
+# 4. Install dependencies including DEV dependencies
 # --system: installs into /usr/local/lib/python3.11/site-packages
 # --deploy: ensures uv.lock is respected strictly
-RUN uv pip install --system .
+RUN uv pip install --system .[dev]
 
-# 5. Copy the rest of the project
+# 5. Copy the rest of the project (Optional in dev, but good for completeness)
 COPY . .
 
-# 6. Download models during build
-# RUN python agent/agent.py download-files
-
-# 7. Run the agent
-# Note the path: agent/agent.py
-CMD ["python", "agent/agent.py", "dev"]
+# 6. Default command (can be overridden by compose)
+CMD ["python", "agent/main.py", "dev"]

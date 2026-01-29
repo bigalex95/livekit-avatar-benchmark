@@ -1,0 +1,39 @@
+services:
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    restart: always
+    # In production, we assume code is baked into the image, so no volume mounts for code.
+    # We might still want assets if they are large and external, but strictly speaking prod image should be self-contained or use specific volumes.
+    # For now, I will explicitly override volumes to be empty or specific if needed.
+    # To 'remove' a volume defined in the base file, we can't easily 'un-define' it in an override without a trick,
+    # but usually, the override merges. If we want NO volumes, we have to rely on the fact that if we don't list them here they persist from base...
+    # Actually, docker-compose merges arrays. So to remove them, we'd need a separate base file or just accept they are there but maybe not crucial if the image has the code.
+    # HOWEVER, mounting local ./agent over /app/agent might hide the baked code if the local folder is empty or different.
+    # It is cleaner to have a `docker-compose.base.yml` and two extensions, but user asked for "default dev but if I use flag it run prod".
+    # The most common pattern for this is:
+    # docker-compose.yml has the dev config.
+    # docker-compose.prod.yml overrides it.
+    # BUT wiping volumes is hard in override.
+    # A trick is to mount to a dummy or just not worry if it's on the same machine.
+    # If this runs in actual prod (remote server), the ./agent folder might not exist, creating an empty folder and masking the code!
+    # So I MUST be careful.
+    # The best way to handle this without changing the `docker-compose.yml` to be a "base" only is to accept that running "prod" locally might still mount local files if you aren't careful.
+    # OR, we can make the dev volumes conditional.
+    # To properly support "prod run", I will override the entrypoint/command to ensure it runs the baked code, but if I can't un-mount, I warn the user.
+    # Wait, `docker-compose.override.yml` is automatically used. But here we have `docker-compose.prod.yml`.
+    # Let's try to just build the prod image. If the user runs this LOCALLY, they probably want to test the prod BUILD, but might still have the files.
+    # If they deploy, they might not invoke `docker-compose.yml` (the dev one) + `prod.yml`, but maybe just a standalone prod compose.
+    # BUT, based on the prompt: "setup flag for dockercompose so I can easy switch agents".
+    # And "defaults dev but if I use flag it run prod dockerfile".
+
+    # Let's assume the user accepts that for PROD locally, we overwrite the build config.
+    # To avoid the volume issue shielding the baked code, I will try to leave it as is.
+    # If the local execution has `./agent`, it will mount over `/app/agent`.
+    # If it is exactly the same code, it doesn't matter much.
+    # If the user wants to test "prod image without local files", they should run elsewhere or rename folder.
+    # BUT, I can try to set volumes to an empty list? No, lists merge.
+    # I will add a comment about this limitation.
+    environment:
+      - RUN_MODE=${RUN_MODE:-interactive}

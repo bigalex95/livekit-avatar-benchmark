@@ -10,7 +10,9 @@ services:
       - livekit-net
 
   agent:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     restart: unless-stopped
     depends_on:
       - livekit
@@ -35,7 +37,7 @@ services:
       - livekit-net
 
     # Point to the new switcher script
-    command: ["python", "agent/main.py", "dev"]
+    command: [ "python", "agent/main.py", "dev" ]
 
 networks:
   livekit-net:
