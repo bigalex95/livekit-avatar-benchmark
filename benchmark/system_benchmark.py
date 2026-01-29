@@ -17,6 +17,7 @@ LIVEKIT_URL = os.getenv("LIVEKIT_URL", "ws://localhost:7880")
 API_KEY = os.getenv("LIVEKIT_API_KEY", "devkey")
 API_SECRET = os.getenv("LIVEKIT_API_SECRET", "secret")
 
+
 @dataclass
 class SystemMetrics:
     timestamp: float
@@ -26,11 +27,13 @@ class SystemMetrics:
     gpu_util: Optional[float] = None
     gpu_mem_mb: Optional[float] = None
 
+
 @dataclass
 class AgentMetric:
     timestamp: float
     type: str
     data: list
+
 
 class AgentRunner:
     def __init__(self, script_path: str):
@@ -47,7 +50,7 @@ class AgentRunner:
                     break
                 line = line.strip()
                 if line:
-                    print(f"[AGENT] {line}") # Debug
+                    print(f"[AGENT] {line}")  # Debug
                     if line.startswith("[METRIC]"):
                         parts = line.split(" ")
                         # [METRIC] TYPE TIMESTAMP ...
@@ -63,17 +66,12 @@ class AgentRunner:
         print(f"🚀 Starting Agent: {self.script_path}")
         # Assuming run with `python <script>`
         import sys
-        cmd = [sys.executable, "-u", self.script_path, "dev"] # -u for unbuffered
-        self.process = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            bufsize=1
-        )
+
+        cmd = [sys.executable, "-u", self.script_path, "dev"]  # -u for unbuffered
+        self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
         self._log_thread = threading.Thread(target=self._read_logs, daemon=True)
         self._log_thread.start()
-        
+
         return self.process.pid
 
     def stop(self):
@@ -91,8 +89,9 @@ class AgentRunner:
                         self.process.wait(timeout=1)
                 except Exception as e:
                     print(f"   -> Error stopping agent: {e}")
-            
+
             self.process = None
+
 
 class SystemMonitor:
     def __init__(self, pid: int, interval: float = 0.5):
@@ -120,17 +119,18 @@ class SystemMonitor:
         try:
             # Let's try querying for our specific PID using nvidia-smi
             result = subprocess.run(
-                ['nvidia-smi', '--query-compute-apps=pid,used_memory', '--format=csv,noheader,nounits'],
-                capture_output=True, text=True
+                ["nvidia-smi", "--query-compute-apps=pid,used_memory", "--format=csv,noheader,nounits"],
+                capture_output=True,
+                text=True,
             )
             if result.returncode == 0:
-                for line in result.stdout.strip().split('\n'):
-                    parts = line.split(',')
+                for line in result.stdout.strip().split("\n"):
+                    parts = line.split(",")
                     if len(parts) >= 2:
                         try:
                             p = int(parts[0].strip())
                             if p == self.pid:
-                                return float(parts[1].strip()) # MB
+                                return float(parts[1].strip())  # MB
                         except ValueError:
                             pass
             return 0.0
@@ -145,24 +145,27 @@ class SystemMonitor:
                     cpu = self.process.cpu_percent()
                     mem_info = self.process.memory_info()
                     mem_percent = self.process.memory_percent()
-                
+
                 # GPU
                 gpu_mem = self._get_gpu_metrics()
-                
-                self.metrics.append(SystemMetrics(
-                    timestamp=time.time(),
-                    cpu_percent=cpu,
-                    memory_percent=mem_percent,
-                    memory_mb=mem_info.rss / 1024 / 1024,
-                    gpu_mem_mb=gpu_mem
-                ))
+
+                self.metrics.append(
+                    SystemMetrics(
+                        timestamp=time.time(),
+                        cpu_percent=cpu,
+                        memory_percent=mem_percent,
+                        memory_mb=mem_info.rss / 1024 / 1024,
+                        gpu_mem_mb=gpu_mem,
+                    )
+                )
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 break
             except Exception as e:
                 # print(f"Monitor error: {e}")
                 pass
-            
+
             time.sleep(self.interval)
+
 
 async def run_latency_test(room_name: str, text_prompts: List[str]):
     # Connect as a driver
@@ -173,9 +176,9 @@ async def run_latency_test(room_name: str, text_prompts: List[str]):
         .with_grants(api.VideoGrants(room_join=True, room=room_name))
         .to_jwt()
     )
-    
+
     room = rtc.Room()
-    
+
     current_active_speakers = []
 
     @room.on("active_speakers_changed")
@@ -192,63 +195,62 @@ async def run_latency_test(room_name: str, text_prompts: List[str]):
         start_wait = time.time()
         while len(room.remote_participants) == 0:
             if time.time() - start_wait > 30:
-                 print("   -> ⚠️  Timeout waiting for agent to join room")
-                 return [], []
+                print("   -> ⚠️  Timeout waiting for agent to join room")
+                return [], []
             await asyncio.sleep(0.5)
         print("   -> Agent found!")
-        
+
         # Collect detailed latencies
-        test_results = [] # List of dicts
-        
+        test_results = []  # List of dicts
+
         # Give a moment
         await asyncio.sleep(2)
 
         for text in text_prompts:
             print(f"\n   -> 📨 Sending: '{text}'")
             t_sent = time.time()
-            
+
             # Send chat message via Data Packet (standard LiveKit chat protocol)
             import json
-            chat_data = json.dumps({
-                "message": text,
-                "timestamp": int(t_sent * 1000)
-            }).encode('utf-8')
-            
-            await room.local_participant.publish_data(
-                payload=chat_data,
-                topic="lk-chat-topic",
-                reliable=True
-            )
-            
+
+            chat_data = json.dumps({"message": text, "timestamp": int(t_sent * 1000)}).encode("utf-8")
+
+            await room.local_participant.publish_data(payload=chat_data, topic="lk-chat-topic", reliable=True)
+
             # For now, let's poll for active speakers becoming the agent
             responded = False
             t_response_detected = 0
             timeout = 15
             poll_start = time.time()
-            
+
             while time.time() - poll_start < timeout:
                 # Check active speakers
                 # print(f"Active speakers: {[s.identity for s in current_active_speakers]}")
-                is_agent_speaking = any(("agent" in s.identity or "tavus" in s.identity or "avatar" in s.identity) for s in current_active_speakers)
-                
+                is_agent_speaking = any(
+                    ("agent" in s.identity or "tavus" in s.identity or "avatar" in s.identity)
+                    for s in current_active_speakers
+                )
+
                 if is_agent_speaking:
                     t_response_detected = time.time()
                     print(f"   -> ⚡ Response detected in {(t_response_detected - t_sent):.3f}s")
                     responded = True
                     break
-                
+
                 await asyncio.sleep(0.05)
-            
-            test_results.append({
-                "prompt": text,
-                "sent_ts": t_sent,
-                "response_ts": t_response_detected if responded else None,
-                "total_latency": (t_response_detected - t_sent) if responded else None
-            })
-            
+
+            test_results.append(
+                {
+                    "prompt": text,
+                    "sent_ts": t_sent,
+                    "response_ts": t_response_detected if responded else None,
+                    "total_latency": (t_response_detected - t_sent) if responded else None,
+                }
+            )
+
             if not responded:
                 print("   -> ❌ Timeout waiting for response")
-            
+
             # Wait before next prompt
             await asyncio.sleep(5)
 
@@ -257,25 +259,26 @@ async def run_latency_test(room_name: str, text_prompts: List[str]):
             await room.disconnect()
         except Exception:
             pass
-        
-    return [], test_results # Latencies not used directly, using test_results
+
+    return [], test_results  # Latencies not used directly, using test_results
+
 
 def main():
     import argparse
     import signal
     import atexit
     import sys
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--agent", required=True, help="Path to agent script")
     parser.add_argument("--text", action="append", help="Text prompt(s) to send")
     args = parser.parse_args()
-    
+
     prompts = args.text or ["Hello, are you there?", "What is the capital of France?"]
-    
+
     runner = AgentRunner(args.agent)
     monitor = None
-    
+
     cleanup_done = False
 
     def cleanup(signu=None, frame=None):
@@ -284,12 +287,12 @@ def main():
             return
         cleanup_done = True
         print("\n🧹 Cleaning up process...")
-        
+
         if monitor:
             monitor.stop()
         if runner:
             runner.stop()
-            
+
         if signu is not None:
             sys.exit(0)
 
@@ -299,47 +302,46 @@ def main():
     # Register atexit
     atexit.register(cleanup)
 
-
     # 1. Start Agent
     pid = runner.start()
-    
+
     # 2. Start Monitor
     monitor = SystemMonitor(pid)
     monitor.start()
-    
+
     # 3. Run Test
     try:
         # Give agent time to warmup
         print("Waiting 10s for agent warmup...")
         time.sleep(10)
-        
+
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
             _, results = loop.run_until_complete(run_latency_test("benchmark-room", prompts))
         finally:
-             loop.close()
-        
+            loop.close()
+
         # 4. Report
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("BENCHMARK RESULTS - LATENCY BREAKDOWN")
-        print("="*60)
+        print("=" * 60)
         print(f"{'Metric':<30} | {'Avg':<8} | {'Min':<8} | {'Max':<8}")
         print("-" * 60)
-        
+
         # Calculate Logic
         livekit_delays = []
         process_delays = []
         total_delays = []
-        
+
         agent_metrics = runner.metrics
-        
+
         for res in results:
-            if not res['response_ts']:
+            if not res["response_ts"]:
                 continue
-                
-            sent_ts_ms = int(res['sent_ts'] * 1000)
-            
+
+            sent_ts_ms = int(res["sent_ts"] * 1000)
+
             # Find matching RECEIVED
             found_received = None
             for m in agent_metrics:
@@ -351,71 +353,72 @@ def main():
                             found_received = m
                             break
                     except (ValueError, IndexError):
-                        pass 
-            
+                        pass
+
             # Find matching SPEAKING
             found_speaking = None
             if found_received:
                 for m in agent_metrics:
-                     if m.type == "AGENT_STATE" and "speaking" in str(m.data[0]):
-                         if m.timestamp > float(found_received.data[0]):
-                             found_speaking = m
-                             break
-            
+                    if m.type == "AGENT_STATE" and "speaking" in str(m.data[0]):
+                        if m.timestamp > float(found_received.data[0]):
+                            found_speaking = m
+                            break
+
             # Calculate Component Latencies
-            total = res['total_latency']
+            total = res["total_latency"]
             total_delays.append(total)
-            
+
             if found_received:
                 # LiveKit Latency: Received Time (S) - Sent Time (S)
                 recv_ts = float(found_received.data[0])
-                lk_lat = recv_ts - res['sent_ts']
+                lk_lat = recv_ts - res["sent_ts"]
                 livekit_delays.append(lk_lat)
-                
+
                 if found_speaking:
                     # Processing Latency: Speaking Time (S) - Received Time (S)
                     proc_lat = found_speaking.timestamp - recv_ts
                     process_delays.append(proc_lat)
-            
+
         def print_stat(name, data):
             if data:
-                print(f"{name:<30} | {sum(data)/len(data):.3f} s  | {min(data):.3f} s  | {max(data):.3f} s")
+                print(f"{name:<30} | {sum(data) / len(data):.3f} s  | {min(data):.3f} s  | {max(data):.3f} s")
             else:
                 print(f"{name:<30} | N/A      | N/A      | N/A")
 
         print_stat("LiveKit (Network Uplink)", livekit_delays)
         print_stat("Google API (Thinking)", process_delays)
         print_stat("Total Response Latency", total_delays)
-        
+
         monitor.stop()
-        
+
         # System Stats
         if monitor.metrics:
-            print("\n" + "="*60)
+            print("\n" + "=" * 60)
             print("SYSTEM USAGE")
-            print("="*60)
+            print("=" * 60)
             avg_cpu = sum(m.cpu_percent for m in monitor.metrics) / len(monitor.metrics)
             max_cpu = max(m.cpu_percent for m in monitor.metrics)
             avg_mem = sum(m.memory_mb for m in monitor.metrics) / len(monitor.metrics)
             max_mem = max(m.memory_mb for m in monitor.metrics)
-            
+
             print(f"CPU Usage (avg): {avg_cpu:.1f}%")
             print(f"CPU Usage (max): {max_cpu:.1f}%")
             print(f"Memory (avg):    {avg_mem:.1f} MB")
             print(f"Memory (max):    {max_mem:.1f} MB")
-            
+
             gpu_data = [m.gpu_mem_mb for m in monitor.metrics if m.gpu_mem_mb is not None]
             if gpu_data:
                 print(f"GPU Mem (max):   {max(gpu_data):.1f} MB")
             else:
                 print("GPU Mem:         N/A (or 0)")
-        
+
     except KeyboardInterrupt:
         print("\n⚠️ Interrupted by user")
     except Exception as e:
         print(f"\n❌ Error running benchmark: {e}")
     finally:
         cleanup()
+
 
 if __name__ == "__main__":
     main()

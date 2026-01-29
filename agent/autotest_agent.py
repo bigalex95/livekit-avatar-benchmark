@@ -60,7 +60,7 @@ async def entrypoint(ctx: agents.JobContext):
             await asyncio.sleep(1)
 
         print("👀 Spectator joined! Starting the performance in 3 seconds...")
-        
+
         # Give session a moment to be fully ready if needed
         await asyncio.sleep(3)
 
@@ -79,7 +79,7 @@ async def entrypoint(ctx: agents.JobContext):
             await asyncio.sleep(10)
 
         print("✅ Performance complete.")
-    
+
     asyncio.create_task(run_performance())
 
     # 4. Start the Agent (This blocks)
