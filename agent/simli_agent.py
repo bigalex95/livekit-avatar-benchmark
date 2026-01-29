@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+from benchmark_hooks import attach_benchmark_hooks
 from dotenv import load_dotenv
 from livekit import agents, rtc
 from livekit.agents import Agent, AgentServer, AgentSession, room_io
@@ -68,6 +69,8 @@ async def my_agent(ctx: agents.JobContext):
             ),
         ),
     )
+
+    attach_benchmark_hooks(ctx.room, session)
 
     await session.generate_reply(instructions="Greet the user and offer your assistance.")
 

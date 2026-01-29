@@ -13,7 +13,7 @@ The goal of this project is to create a reliable and reproducible environment fo
 ## 📂 Project Structure
 
 - **`agent/`**: Contains the implemented LiveKit agent code.
-- **`benchmark/`**: Tools for running performance benchmarks.
+- **`benchmark/`**: Tools for running performance benchmarks. (See [Benchmarking Guide](docs/benchmarking.md))
 - **`scripts/`**: Utility scripts for operations, testing, and maintenance.
   - `start.sh`: Starts the environment (Docker + Agent).
   - `check_and_test.sh`: Runs linting, formatting, and tests.
@@ -86,6 +86,16 @@ All scripts are located in the `scripts/` directory. You should run them from th
   ```bash
   python scripts/run_simple_listener.py
   ```
+
+### 📊 Benchmarking
+
+To measure the latency and performance of an agent:
+
+```bash
+uv run python benchmark/system_benchmark.py --agent agent/tavus_agent.py --text "Hello"
+```
+
+For full details, read the [Benchmarking Guide](docs/benchmarking.md).
 
 ## 🧪 Testing
 

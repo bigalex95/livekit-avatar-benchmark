@@ -1,10 +1,11 @@
 import os
 from pathlib import Path
 
+from benchmark_hooks import attach_benchmark_hooks
 from dotenv import load_dotenv
 from livekit import agents, rtc
 from livekit.agents import Agent, AgentServer, AgentSession, room_io
-from livekit.plugins import google, noise_cancellation, tavus  # <--- 1. Import Tavus
+from livekit.plugins import google, noise_cancellation, tavus
 
 load_dotenv(dotenv_path=Path(__file__).resolve().parent / ".env.local")
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
@@ -56,7 +57,6 @@ async def my_agent(ctx: agents.JobContext):
     # The avatar needs to join the room to be ready to lip-sync
     await avatar.start(session, room=ctx.room)
 
-    # 4. Start the Agent Session
     await session.start(
         room=ctx.room,
         agent=Assistant(),
@@ -70,6 +70,9 @@ async def my_agent(ctx: agents.JobContext):
             ),
         ),
     )
+
+    # Attach Benchmark Hooks (Chat & Metrics)
+    attach_benchmark_hooks(ctx.room, session)
 
     await session.generate_reply(instructions="Greet the user and offer your assistance.")
 
