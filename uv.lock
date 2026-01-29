@@ -1376,6 +1376,7 @@ dependencies = [
     { name = "livekit-plugins-bey" },
     { name = "livekit-plugins-bithuman" },
     { name = "livekit-plugins-google" },
+    { name = "livekit-plugins-liveavatar" },
     { name = "livekit-plugins-noise-cancellation" },
     { name = "livekit-plugins-silero" },
     { name = "livekit-plugins-simli" },
@@ -1406,6 +1407,7 @@ requires-dist = [
     { name = "livekit-plugins-bey", specifier = ">=1.3.12" },
     { name = "livekit-plugins-bithuman", specifier = "==1.3.12" },
     { name = "livekit-plugins-google", specifier = ">=1.3.12" },
+    { name = "livekit-plugins-liveavatar", specifier = ">=1.3.12" },
     { name = "livekit-plugins-noise-cancellation", specifier = ">=0.2.5" },
     { name = "livekit-plugins-silero", specifier = ">=1.3.12" },
     { name = "livekit-plugins-simli", specifier = ">=1.3.12" },
@@ -1508,6 +1510,18 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/d8/8f/21ed45875c5cfac243b361d4dbcde1094e45648cd91020786447f751d913/livekit_plugins_google-1.3.12.tar.gz", hash = "sha256:325a062a3d1111105581b8c5181178b149bb136eb0e4bfc18fbf16ea7aaf6c9b", size = 36396 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/dc/a8/f99c43b201275525aaa7facd4d99009087825d050f8a4f700551bca12afd/livekit_plugins_google-1.3.12-py3-none-any.whl", hash = "sha256:f788a3772e879f3c892caf43d2747dd3f216da3a53af6bbf3019cb04178a3902", size = 42972 },
+]
+
+[[package]]
+name = "livekit-plugins-liveavatar"
+version = "1.3.12"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "livekit-agents" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/7e/39/c3ce3ebdb43b6b9041d9d70ee6858ca2ad42ce521d7631aade7e841b8b87/livekit_plugins_liveavatar-1.3.12.tar.gz", hash = "sha256:20fb32c5c0300b0f64939d262b0053ce6a51318d02cfad806959534100543a1c", size = 6980 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/36/8b/cb0591a661a1df2d1f1fc035a84bbd95a3ad90f3d93ff8044791f247be6b/livekit_plugins_liveavatar-1.3.12-py3-none-any.whl", hash = "sha256:eab5844898d4f1e824db82ea60c00d4e2962e1f75d2913e3093a8445e4c5fa4a", size = 7220 },
 ]
 
 [[package]]

@@ -1,2 +1,9 @@
-1. test and fix agent/autotest_agent.py
-2. need to add pytest tests
+1. need to create latency tests
+2. need to create table with results
+3. need to write table my visual tests
+    3.1. anam
+    3.2. tavus
+    3.3. liveavatar
+    3.4. bey
+    3.5. bithuman
+    3.6. simli
