@@ -30,7 +30,7 @@ jobs:
         run: uv run ruff format --check .
 
       - name: Linting (Ruff)
-        run: uv run ruff check .
+        run: uv run ruff check --fix .
 
       # - name: Check requirements.txt sync
       #   run: |
