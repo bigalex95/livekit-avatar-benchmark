@@ -3,10 +3,10 @@ import os
 import subprocess
 import threading
 import time
-import psutil
 from dataclasses import dataclass
-from typing import List, Optional
 from pathlib import Path
+
+import psutil
 from dotenv import load_dotenv
 from livekit import api, rtc
 
@@ -24,8 +24,8 @@ class SystemMetrics:
     cpu_percent: float
     memory_percent: float
     memory_mb: float
-    gpu_util: Optional[float] = None
-    gpu_mem_mb: Optional[float] = None
+    gpu_util: float | None = None
+    gpu_mem_mb: float | None = None
 
 
 @dataclass
@@ -39,7 +39,7 @@ class AgentRunner:
     def __init__(self, script_path: str):
         self.script_path = script_path
         self.process = None
-        self.metrics: List[AgentMetric] = []
+        self.metrics: list[AgentMetric] = []
         self._log_thread = None
 
     def _read_logs(self):
@@ -98,7 +98,7 @@ class SystemMonitor:
         self.pid = pid
         self.interval = interval
         self.stop_event = threading.Event()
-        self.metrics: List[SystemMetrics] = []
+        self.metrics: list[SystemMetrics] = []
         self._thread = threading.Thread(target=self._monitor_loop)
         try:
             self.process = psutil.Process(pid)
@@ -160,14 +160,14 @@ class SystemMonitor:
                 )
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 break
-            except Exception as e:
+            except Exception:
                 # print(f"Monitor error: {e}")
                 pass
 
             time.sleep(self.interval)
 
 
-async def run_latency_test(room_name: str, text_prompts: List[str]):
+async def run_latency_test(room_name: str, text_prompts: list[str]):
     # Connect as a driver
     token = (
         api.AccessToken(API_KEY, API_SECRET)
@@ -182,7 +182,7 @@ async def run_latency_test(room_name: str, text_prompts: List[str]):
     current_active_speakers = []
 
     @room.on("active_speakers_changed")
-    def on_active_speakers_changed(speakers: List[rtc.Participant]):
+    def on_active_speakers_changed(speakers: list[rtc.Participant]):
         nonlocal current_active_speakers
         current_active_speakers = speakers
 
@@ -265,8 +265,8 @@ async def run_latency_test(room_name: str, text_prompts: List[str]):
 
 def main():
     import argparse
-    import signal
     import atexit
+    import signal
     import sys
 
     parser = argparse.ArgumentParser()

@@ -5,7 +5,7 @@ from benchmark_hooks import attach_benchmark_hooks
 from dotenv import load_dotenv
 from livekit import agents, rtc
 from livekit.agents import Agent, AgentServer, AgentSession, room_io
-from livekit.plugins import google, noise_cancellation, liveavatar
+from livekit.plugins import google, liveavatar, noise_cancellation
 
 load_dotenv(dotenv_path=Path(__file__).resolve().parent / ".env.local")
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
