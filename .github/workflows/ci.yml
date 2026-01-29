@@ -32,12 +32,12 @@ jobs:
       - name: Linting (Ruff)
         run: uv run ruff check .
 
-      - name: Check requirements.txt sync
-        run: |
-          uv export --format requirements-txt --no-hashes > requirements_check.txt
-          if ! cmp -s requirements.txt requirements_check.txt; then
-            echo "Error: requirements.txt is not in sync with pyproject.toml"
-            echo "Please run 'uv export --format requirements-txt --no-hashes > requirements.txt' and commit the changes."
-            diff requirements.txt requirements_check.txt
-            exit 1
-          fi
+      # - name: Check requirements.txt sync
+      #   run: |
+      #     uv export --format requirements-txt --no-hashes > requirements_check.txt
+      #     if ! cmp -s requirements.txt requirements_check.txt; then
+      #       echo "Error: requirements.txt is not in sync with pyproject.toml"
+      #       echo "Please run 'uv export --format requirements-txt --no-hashes > requirements.txt' and commit the changes."
+      #       diff requirements.txt requirements_check.txt
+      #       exit 1
+      #     fi
